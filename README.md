@@ -21,7 +21,6 @@ Then just run and a commandprompt will tell what you can do.
 ```
 python cleaner.py
 ```
-Commands (? will display all the commmands)
-```
+? will display all the commmands.
+You can use help "command" to display command specific help.
 
-```
