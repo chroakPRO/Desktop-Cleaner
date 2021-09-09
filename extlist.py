@@ -5,7 +5,7 @@ commands = {
         'restore': 'print("hello")'
 }
 
-
+# Dict taken from @KalleHalden
 extension_paths = {
         # No name
         'noname':  'other/uncategorized',
