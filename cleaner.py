@@ -282,19 +282,19 @@ class PCSorter:
 
 
 
-
+"""
 def exit_app(args):
     print('Bye')
 
 def sort_files(args):
     sorter = PCSorter.getInstance()
     files, sub_folders_main, sub_folders = sorter._listfiles()
-    sorter._create_sort_folders(extension_paths)
-    none_sorted, restore_list = sorter._sort_files(files)
+    extension_paths = sorter._create_sort_folders(files)
+    sorted_files, restore_list = sorter._sort_files(files, extension_paths)
     sorter._write_restore_file(restore_list)
 
     if args.delete:
-        sorter._delete_sorted_folders(none_sorted, sub_folders)
+        sorter._delete_sorted_folders(sorted_files, sub_folders)
         print("Folders deleted...")
         time.sleep(0.5)
 
@@ -307,7 +307,7 @@ def restore_files(args):
 
 def backup_files(args):
     sorter = PCSorter.getInstance()
-    sorter._backup()
+    sorter._backup(args.target_dir)
 
 def search_files(args):
     sorter = PCSorter.getInstance()
@@ -316,25 +316,68 @@ def search_files(args):
 def clear_screen(args):
     os.system('cls' if os.name == 'nt' else 'clear')
 
+import argparse
+"""
+
+import argparse
+
+def exit_app(args):
+    print('Bye')
+
+def sort_files(args):
+    print('Sorting files')
+
+def restore_files(args):
+    print('Restoring files')
+
+def backup_files(args):
+    print('Backing up files to directory:', args.backup_dir)
+
+def search_files(args):
+    print('Searching for file:', args.search_file)
+
 def main():
     parser = argparse.ArgumentParser(description="File management utility")
+    subparsers = parser.add_subparsers(dest='command')
 
-    parser.add_argument('--exit', '-e', action='store_true', help='Exit the application')
-    parser.add_argument('--sort', '-s', action='store_true', help='Sort all files')
-    parser.add_argument('--delete', '-d', action='store_true', help='Delete old folders after sorting')
-    parser.add_argument('--restore', '-r', action='store_true', help='Restore after a sort')
-    parser.add_argument('--backup', '-b', action='store_true', help='Backup all files')
-    parser.add_argument('--search', '-f', type=str, help='Search for a file')
-    parser.add_argument('--clear', '-c', action='store_true', help='Clear the console')
+    # Exit command
+    exit_parser = subparsers.add_parser('exit')
+    exit_parser.set_defaults(func=exit_app)
 
-    parser.set_defaults(func=exit_app)
-    parser.set_defaults(func=sort_files)
-    parser.set_defaults(func=restore_files)
-    parser.set_defaults(func=backup_files)
-    parser.set_defaults(func=search_files)
-    parser.set_defaults(func=clear_screen)
+    # Sort command
+    sort_parser = subparsers.add_parser('sort')
+    sort_parser.set_defaults(func=sort_files)
+
+    # Restore command
+    restore_parser = subparsers.add_parser('restore')
+    restore_parser.set_defaults(func=restore_files)
+
+    # Backup command as a subcommand
+    backup_parser = subparsers.add_parser('backup')
+    backup_parser.add_argument('backup_dir', type=str, help='Backup all files to a specific directory')
+    backup_parser.set_defaults(func=backup_files)
+
+    # Search command as a subcommand
+    search_parser = subparsers.add_parser('search')
+    search_parser.add_argument('search_file', type=str, help='Search for a file')
+    search_parser.set_defaults(func=search_files)
+
+    # Top-level --backup and --search options
+    parser.add_argument('-b', '--backup', action='store', type=str, dest='backup_dir', help='Backup all files to a specific directory')
+    parser.add_argument('-f', '--search', action='store', type=str, dest='search_file', help='Search for a file')
 
     args = parser.parse_args()
+
+    # Handle top-level --backup and --search options
+    if args.command is None:
+        if args.backup_dir:
+            args.func = backup_files
+        elif args.search_file:
+            args.func = search_files
+        else:
+            parser.print_help()
+            return
+
     if hasattr(args, 'func'):
         args.func(args)
     else:
@@ -342,6 +385,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 
@@ -434,4 +478,4 @@ if __name__ == "__main__":
     
 
 
-'''
+i'''
