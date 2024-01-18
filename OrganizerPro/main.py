@@ -4,14 +4,14 @@ from extlist import *
 import time
 import argparse
 import datetime
-from cmd import Cmd
+from openai import OpenAI
+import importlib.resources as pkg_resources
 
 # Delete folders after sorting.
 # And delete files.
 # Threading and mutliprocessor.
 
 
-cleaner_name = "cleaner.py"
 
 # Add more printing features. 
 
@@ -22,15 +22,6 @@ class PCSorter:
     :return: none
     """
 
-    __instance = None
-
-    @staticmethod
-    def getInstance():
-
-        if PCSorter.__instance == None:
-            PCSorter('restore.txt')
-        return PCSorter.__instance
-
 
     files = []
     sub_folders = []
@@ -39,15 +30,15 @@ class PCSorter:
     dir_containing_files = []
 
 
-    def __init__(self, resetname):
+    def __init__(self, model, directory, is_backup):
 
-        if PCSorter.__instance != None:
-            raise Exception("This class is a singleton")
-        else:
-            PCSorter.__instance = self
-        self.resetname = resetname
-        self.current_path = os.getcwd()
-        self.full_list = []
+        self.is_backup = is_backup
+        self.directory = directory
+        self.model = model
+        self.client = OpenAI(api_key=os.environ['OPENAI_API_KEY'])
+        self.chatbot = open("./data/chatbot.txt")
+        with open("./data/chatbot.txt") as file:
+            self.chatbot = file.read()
 
     def _restore(self):
         """
@@ -279,62 +270,58 @@ class PCSorter:
             if diff > 90:
                 print("delete file.")
 
+    def _chatgpt(self, conversation, chatbot, user_input, model="gpt-4-0613", temperature=0, max_tokens=500):
+        # Prepare messages for the conversation
+        formatted_conversation = [{"role": "system", "content": chatbot}]
+        for message in conversation:
+            if isinstance(message, dict) and "role" in message and "content" in message:
+                formatted_conversation.append(message)
+            else:
+                formatted_conversation.append({"role": "user", "content": message})
+
+        formatted_conversation.append({"role": "user", "content": user_input})
+
+        # Create the chat completion using the new API method
+        completion = self.client.chat.completions.create(
+            model=model,
+            messages=formatted_conversation,
+            temperature=temperature,
+            max_tokens=max_tokens
+        )
+
+        # Extract the response
+        if completion.choices and completion.choices[0].message:
+            chat_response = completion.choices[0].message.content
+        else:
+            chat_response = "No response generated."
+
+        return chat_response    
 
 
 
-"""
 def exit_app(args):
     print('Bye')
 
 def sort_files(args):
-    sorter = PCSorter.getInstance()
-    files, sub_folders_main, sub_folders = sorter._listfiles()
-    extension_paths = sorter._create_sort_folders(files)
-    sorted_files, restore_list = sorter._sort_files(files, extension_paths)
-    sorter._write_restore_file(restore_list)
+    default_model = 'GPT4'
+    default_directory = os.getcwd()
+    default_backup = False
 
-    if args.delete:
-        sorter._delete_sorted_folders(sorted_files, sub_folders)
-        print("Folders deleted...")
-        time.sleep(0.5)
+    model = args.model if args.model else default_model
+    directory = args.dir if args.dir else default_directory
+    # Corrected handling for is_backup
+    is_backup = default_backup if args.backup is None else args.backup.lower() == 'true'
 
-    print("Everything is complete!")
-    time.sleep(3)
+    #sorter = PCSorter(model=model, directory=directory, is_backup=is_backup)
+
+    # Your additional logic
+    print(f'Sorting files in directory: {directory}, using model: {model}, with backup: {is_backup}')
+
 
 def restore_files(args):
     sorter = PCSorter.getInstance()
     sorter._restore()
 
-def backup_files(args):
-    sorter = PCSorter.getInstance()
-    sorter._backup(args.target_dir)
-
-def search_files(args):
-    sorter = PCSorter.getInstance()
-    sorter._searchfiles(args.search)
-
-def clear_screen(args):
-    os.system('cls' if os.name == 'nt' else 'clear')
-
-import argparse
-"""
-
-import argparse
-
-def exit_app(args):
-    print('Bye')
-
-def sort_files(args):
-    print('Sorting files')
-
-def restore_files(args):
-    print('Restoring files')
-
-def backup_files(args):
-    print('Backing up files to directory:', args.backup_dir)
-
-def search_files(args):
-    print('Searching for file:', args.search_file)
 
 def main():
     parser = argparse.ArgumentParser(description="File management utility")
@@ -346,37 +333,16 @@ def main():
 
     # Sort command
     sort_parser = subparsers.add_parser('sort')
+    sort_parser.add_argument('--model', type=str, help='Model type for sorting (default: GPT4)')
+    sort_parser.add_argument('--dir', type=str, help='Directory to sort (default: None)')
+    sort_parser.add_argument('--backup', type=str, help='Backup directory for sorted files (default: False)')
     sort_parser.set_defaults(func=sort_files)
 
     # Restore command
     restore_parser = subparsers.add_parser('restore')
     restore_parser.set_defaults(func=restore_files)
 
-    # Backup command as a subcommand
-    backup_parser = subparsers.add_parser('backup')
-    backup_parser.add_argument('backup_dir', type=str, help='Backup all files to a specific directory')
-    backup_parser.set_defaults(func=backup_files)
-
-    # Search command as a subcommand
-    search_parser = subparsers.add_parser('search')
-    search_parser.add_argument('search_file', type=str, help='Search for a file')
-    search_parser.set_defaults(func=search_files)
-
-    # Top-level --backup and --search options
-    parser.add_argument('-b', '--backup', action='store', type=str, dest='backup_dir', help='Backup all files to a specific directory')
-    parser.add_argument('-f', '--search', action='store', type=str, dest='search_file', help='Search for a file')
-
     args = parser.parse_args()
-
-    # Handle top-level --backup and --search options
-    if args.command is None:
-        if args.backup_dir:
-            args.func = backup_files
-        elif args.search_file:
-            args.func = search_files
-        else:
-            parser.print_help()
-            return
 
     if hasattr(args, 'func'):
         args.func(args)
@@ -386,96 +352,3 @@ def main():
 if __name__ == "__main__":
     main()
 
-
-
-
-
-
-
-
-
-
-
-
-'''
-
-class MyPrompt(Cmd):
-    """ 
-    Commandline interface class.
-    """
-
-    prompt = 'ce> '
-    intro = "Welcome! Type ? to list commands"
-
-    def do_exit(self, inp):
-        print('Bye')
-        return True
-
-    def help_exit(self):
-        print('exit the application. Shorthand: x q CTRL-D.')
-
-    def do_sort(self, inp):
-        sorter = PCSorter.getInstance()
-        files, sub_folders_main, sub_folders = sorter._listfiles()
-        #sorter._clean_dirs(files)
-        sorter._create_sort_folders(extension_paths)
-        none_sorted, restore_list = sorter._sort_files(files)
-        sorter._write_restore_file(restore_list)
-        print("Do you wanna delete old folders?")
-        user_input2 = input("Press Y for yes and N for no. ")
-        user_input2 = user_input2.lower()
-        if user_input2 == "y":
-            sorter._delete_sorted_folders(none_sorted, sub_folders)
-            print("Folders deleted...")
-            time.sleep(0.5)
-        #print(sub_folders_main)
-        print("Everything is complete!")
-        time.sleep(3)
-
-    def help_sort(self):
-        print('Sort all files, (sorts everything in py files dir and subdirs.)')
-
-    def do_restore(self, inp):
-        print("{}".format(inp))
-        sorter = PCSorter.getInstance()
-        sorter._restore() 
-
-    def help_restore(self):
-        print("Restore after a sort has been done. (Dosen't work without restore file)")
-
-    def do_backup(self):
-        sorter = PCSorter.getInstance()
-        sorter._backup()
-
-    def help_backup(self):
-        print("Backup all files in current dir. (Copies all the files into a dir called backup)")
-
-    def do_search(self, inp):
-        sorter = PCSorter.getInstance()
-        sorter._searchfiles(inp)
-        
-
-    def help_search(self):
-        print("will search for a files location, only current and subdirs.")
-
-    def do_clear(self, inp):
-        os.system('cls' if os.name=='nt' else 'clear')
-        
-    def help_clear(self):
-        print("Clear the console.")
-
-    def default(self, inp):
-        if inp == 'x' or inp == 'q':
-            return self.do_exit(inp)
- 
-        print("Default: {}".format(inp))
-
-    do_EOF = do_exit
-    help_EOF = help_exit
-
-if __name__ == "__main__": 
-    MyPrompt().cmdloop()
-    
-
-
-i'''
