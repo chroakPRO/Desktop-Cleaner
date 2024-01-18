@@ -282,6 +282,79 @@ class PCSorter:
 
 
 
+
+def exit_app(args):
+    print('Bye')
+
+def sort_files(args):
+    sorter = PCSorter.getInstance()
+    files, sub_folders_main, sub_folders = sorter._listfiles()
+    sorter._create_sort_folders(extension_paths)
+    none_sorted, restore_list = sorter._sort_files(files)
+    sorter._write_restore_file(restore_list)
+
+    if args.delete:
+        sorter._delete_sorted_folders(none_sorted, sub_folders)
+        print("Folders deleted...")
+        time.sleep(0.5)
+
+    print("Everything is complete!")
+    time.sleep(3)
+
+def restore_files(args):
+    sorter = PCSorter.getInstance()
+    sorter._restore()
+
+def backup_files(args):
+    sorter = PCSorter.getInstance()
+    sorter._backup()
+
+def search_files(args):
+    sorter = PCSorter.getInstance()
+    sorter._searchfiles(args.search)
+
+def clear_screen(args):
+    os.system('cls' if os.name == 'nt' else 'clear')
+
+def main():
+    parser = argparse.ArgumentParser(description="File management utility")
+
+    parser.add_argument('--exit', '-e', action='store_true', help='Exit the application')
+    parser.add_argument('--sort', '-s', action='store_true', help='Sort all files')
+    parser.add_argument('--delete', '-d', action='store_true', help='Delete old folders after sorting')
+    parser.add_argument('--restore', '-r', action='store_true', help='Restore after a sort')
+    parser.add_argument('--backup', '-b', action='store_true', help='Backup all files')
+    parser.add_argument('--search', '-f', type=str, help='Search for a file')
+    parser.add_argument('--clear', '-c', action='store_true', help='Clear the console')
+
+    parser.set_defaults(func=exit_app)
+    parser.set_defaults(func=sort_files)
+    parser.set_defaults(func=restore_files)
+    parser.set_defaults(func=backup_files)
+    parser.set_defaults(func=search_files)
+    parser.set_defaults(func=clear_screen)
+
+    args = parser.parse_args()
+    if hasattr(args, 'func'):
+        args.func(args)
+    else:
+        parser.print_help()
+
+if __name__ == "__main__":
+    main()
+
+
+
+
+
+
+
+
+
+
+
+'''
+
 class MyPrompt(Cmd):
     """ 
     Commandline interface class.
@@ -361,3 +434,4 @@ if __name__ == "__main__":
     
 
 
+'''
