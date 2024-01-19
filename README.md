@@ -24,3 +24,5 @@ python cleaner.py
 ? will display all the commmands.
 You can use help "command" to display command specific help.
 
+
+Using GPT4 is 1100% more expensive then using GPT3.5 keep that in mind.
