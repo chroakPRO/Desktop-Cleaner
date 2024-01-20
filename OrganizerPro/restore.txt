@@ -1,0 +1,17 @@
+Invoice_4.pdf###C:\Users\chriek01\Documents\GitHub\Desktop-Cleaner\OrganizerPro\output_files\Invoices\Invoice_4.pdf
+Invoice_5.pdf###C:\Users\chriek01\Documents\GitHub\Desktop-Cleaner\OrganizerPro\output_files\Invoices\Invoice_5.pdf
+MeetingNotes_1.txt###C:\Users\chriek01\Documents\GitHub\Desktop-Cleaner\OrganizerPro\output_files\MeetingNotes\MeetingNotes_1.txt
+MeetingNotes_2.txt###C:\Users\chriek01\Documents\GitHub\Desktop-Cleaner\OrganizerPro\output_files\MeetingNotes\MeetingNotes_2.txt
+MeetingNotes_3.txt###C:\Users\chriek01\Documents\GitHub\Desktop-Cleaner\OrganizerPro\output_files\MeetingNotes\MeetingNotes_3.txt
+MeetingNotes_4.txt###C:\Users\chriek01\Documents\GitHub\Desktop-Cleaner\OrganizerPro\output_files\MeetingNotes\MeetingNotes_4.txt
+MeetingNotes_5.txt###C:\Users\chriek01\Documents\GitHub\Desktop-Cleaner\OrganizerPro\output_files\MeetingNotes\MeetingNotes_5.txt
+Photos_1.jpg###C:\Users\chriek01\Documents\GitHub\Desktop-Cleaner\OrganizerPro\output_files\Photos\Photos_1.jpg
+Photos_2.jpg###C:\Users\chriek01\Documents\GitHub\Desktop-Cleaner\OrganizerPro\output_files\Photos\Photos_2.jpg
+Photos_3.jpg###C:\Users\chriek01\Documents\GitHub\Desktop-Cleaner\OrganizerPro\output_files\Photos\Photos_3.jpg
+Photos_4.jpg###C:\Users\chriek01\Documents\GitHub\Desktop-Cleaner\OrganizerPro\output_files\Photos\Photos_4.jpg
+Photos_5.jpg###C:\Users\chriek01\Documents\GitHub\Desktop-Cleaner\OrganizerPro\output_files\Photos\Photos_5.jpg
+Projects_1.docx###C:\Users\chriek01\Documents\GitHub\Desktop-Cleaner\OrganizerPro\output_files\Projects\Projects_1.docx
+Projects_2.docx###C:\Users\chriek01\Documents\GitHub\Desktop-Cleaner\OrganizerPro\output_files\Projects\Projects_2.docx
+Projects_3.docx###C:\Users\chriek01\Documents\GitHub\Desktop-Cleaner\OrganizerPro\output_files\Projects\Projects_3.docx
+Projects_4.docx###C:\Users\chriek01\Documents\GitHub\Desktop-Cleaner\OrganizerPro\output_files\Projects\Projects_4.docx
+Projects_5.docx###C:\Users\chriek01\Documents\GitHub\Desktop-Cleaner\OrganizerPro\output_files\Projects\Projects_5.docx

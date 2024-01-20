@@ -35,48 +35,7 @@ class PCSorter:
         with open("./data/chatbot.txt") as file:
             self.chatbot = file.read()
 
-    def _restore(self):
-        """
-        Restore previous cleaning session
-        :return: none
-        """
-        try:
-            with open(self.resetname, "r") as f:
-                print("Opening restore file...")
-                lines = f.readlines()
-                for i in lines:
-                    restore_dir = i
-                    restore_dir = restore_dir.split("###")
-
-                    program_name = r"{}".format(restore_dir[0].replace("\n", ""))
-                    restore_path = r"{}".format(restore_dir[1].replace("\n", ""))
-                    curry_path = r"{}".format(restore_dir[2].replace("\n", ""))
-                    restore_path = os.path.join(restore_path.strip())
-                    cur_path = os.path.join(curry_path)
-                    if os.path.exists(cur_path):
-                        res_path = restore_path.replace(program_name, "")
-                        res_path = os.path.join(res_path)
-                        if os.path.exists(res_path):
-                            shutil.move(cur_path, restore_path)
-                        else:
-                            os.makedirs(res_path)
-                            shutil.move(cur_path, restore_path)
-                print("All files have been restored...")
-            # Delete old folders after restorting. 
-            for i in ext_dir:
-                cur_path = os.path.join(self.current_path, i)
-                if os.path.isdir(cur_path):
-                    shutil.rmtree(cur_path)
-                else:
-                    pass
-                    #print("Couldnt delete directory.")
-            os.remove(self.resetname)
-            print("All old sort folders have been deleted...")
-            time.sleep(2)
-        except FileNotFoundError:
-            print("The file was not found..")
-        except:
-            print("Unkown Error.")
+    
 
     def _backup(self):
         """
@@ -117,82 +76,20 @@ class PCSorter:
         If include_subdirs is False, only files from the root directory are returned.
         Returns a tuple of two lists: (all_files, all_directories).
         """
-        excluded_files = {'cleaner.py', 'extlist.py'}
+        excluded_files = {'cleaner.py', 'extlist.py', 'main.py'}
         all_files = []
         all_directories = []
-
+        if not os.path.isabs(self.directory):
+            self.directory = os.path.abspath(self.directory)
         for root, dirs, files in os.walk(self.directory):
             if root != os.path.normpath(self.directory) and not include_subdirs:
+                print("root", files)
                 continue  # Skip subdirectories
             all_directories.append(root)
             for file in files:
                 if file not in excluded_files:
                     all_files.append(os.path.join(root, file))
-
         return all_files, all_directories
-
-
-    def _create_sort_folders(self, ext_dict):
-            print("Creating folders...")
-            for i in ext_dict:
-                ext_path_dir = ext_dict[i]
-                if os.path.isdir("./{}".format(ext_path_dir)):
-                    print("Folder -> {} already exists".format(ext_path_dir))
-                    continue
-                else:
-                    print("Created Folders -> {}".format(ext_path_dir))    
-                    os.makedirs("{}".format(ext_path_dir))
-            return True
-
-
-    def _write_restore_file(self, lists):
-        try:
-            with open(self.resetname, "w") as f:
-                for i in lists:
-                    f.write(i)
-                f.close()
-        except:
-            print("_write_restore_file ERROR")
-
-
-    def _sort_files(self, filenames):
-
-        tmp_list = []
-        dir_containing_files = []   
-        print("Sorting Files...")
-        for i in filenames:
-            file_ext = os.path.splitext(i)
-            for ext_key in extension_paths:               
-                if file_ext[1] == ext_key:   
-                    spec_dir = extension_paths["{}".format(ext_key)]
-
-                    file_name = i.split("\\")
-                    file_name = file_name[-1]
-
-                    file_path = os.path.join(self.current_path, spec_dir, file_name)               
-                    path = os.path.join(self.current_path, spec_dir)
-                    old_path = os.path.join(i)
-                    if not os.path.exists(file_path):
-                        tmp_list.append("{}###{}###{} \n".format(file_name, old_path, file_path))
-                        time.sleep(0.01)
-                        try:
-                            shutil.move(i, path)
-                        except:
-                            #print("Couldnt move the file.")
-                            dir_containing_files.append(os.path.join(file_ext[0]))
-                        break
-        print("Writing files to restore.txt")
-        return dir_containing_files, tmp_list
-
-    def _delete_sorted_folders(self, none_sorted, sub_folders):
-        for i in sub_folders:
-            if i in none_sorted:
-                continue
-            else:
-                try:
-                    shutil.rmtree(os.path.join(i))
-                except:
-                    print("Couldnt delete folder")
 
 
     def chatgpt(self, user_input, model="gpt-4-1106-preview", temperature=0, max_tokens=500):
@@ -241,6 +138,38 @@ class PCSorter:
                 output += f"{indent}  - {file}\n"
         return output
 
+    def sort_files(self, json_response):
+        file_movements = []
+        # Create folders
+        json_data = json.loads(json_response)
+        for folder, files in json_data.items():
+            # Create the folders
+            folder_path = os.path.join(self.directory, folder)
+            try:
+                if os.path.isdir(folder_path): continue
+                else: os.makedirs(folder_path)
+                print("Folders created")
+            except OSError as error:
+                print(f"Creation of the folder '{folder_path}' failed")
+                print(error)
+            for i in files:
+                # Move files to corresponding folder
+                shutil.move(os.path.join(self.directory, i), folder_path)
+            for i in files:
+                original_path = i
+                new_path = os.path.join(folder_path, os.path.basename(i))
+                file_movements.append(f"{original_path}###{new_path}\n")  # Record the file movement
+        with open(self.directory, 'w') as file:
+            for movement in file_movements:
+                file.write(movement)
+
+    def restore_files(self, restore_file='restore.txt'):
+        with open(restore_file, 'r') as file:
+            for line in file:
+                original_path, new_path = line.strip().split('###')
+                shutil.move(new_path, original_path)
+                print(f"Restored {new_path} to {original_path}")
+
 
 def exit_app(args):
     print('Bye')
@@ -256,12 +185,11 @@ def sort_files(args):
     # Assign values to parameters based on provided arguments
     model: str = args.model if args.model else default_model  # Assign model parameter if provided, otherwise use default
     if model == "custom":
-        model = input("select custom model.")
-        
-    directory: str = args.dir if args.dir else default_directory  # Assign directory parameter if provided, otherwise use default
-    is_backup: bool = default_backup if args.backup is None else args.backup.lower() == 'true'  # Convert 'backup' argument to boolean value
-    include_subdirs: bool = default_include if args.include is None else args.include.lower() == 'true'  # Convert 'include_subdirs' argument to boolean value
+        model = input("select custom model.")   
 
+    directory: str = args.dir if args.dir else default_directory  # Assign directory parameter if provided, otherwise use default
+    is_backup: bool = default_backup if args.backup is None else args.backup.lower() == 'true'  # Convert 'backup' argument to boolean value    '
+    include_subdirs: bool = default_include if args.include is None else args.include.lower() == 'true'  # Convert 'include_subdirs' argument to boolean value
     if re.match(r"^gpt\-?3", model.lower()): model = "gpt-3.5-turbo"
     else: model = "gpt-4-1106-preview"
     # Create a PCSorter object using the assigned parameters
@@ -273,6 +201,8 @@ def sort_files(args):
     # Unpack the result into files and dirs
     files: list[str] = list_files_result[0]
     dirs: list[str] = list_files_result[1]
+
+    # Do the backup: PLACEHOLDER
 
     # Extract only filenames from the list of files
     only_filename: list[str] = [os.path.basename(i) for i in files]  # Extract base filenames from full filepaths
@@ -294,6 +224,8 @@ def sort_files(args):
             sys.exit()
         else:
             print("Invalid input. Please enter 'y' for yes or 'n' for no.")
+
+    sorter.sort_files(clean_response) 
 
 def restore_files(args):
     sorter = PCSorter.getInstance()
