@@ -36,40 +36,6 @@ class PCSorter:
             self.chatbot = file.read()
 
     
-
-    def _backup(self):
-        """
-        Backup function
-        """
-        if not os.path.isdir("Backup"):
-            os.mkdir("Backup")
-        else:
-            print("Folder already created")
-
-        current_files = os.listdir(".")
-        for i in current_files:
-            try:
-                shutil.copy(i, "./Backup")
-            except:
-                print("File {} couldn't be moved. Unkown reason!".format(i))
-        time.sleep(2)
-
-    def _searchfiles(self, filename):
-        """
-        Search files.
-        :param x: filename string
-        :return: path of file string
-        """
-
-        if len(self.full_list) == 0:
-            self.list_files()
-
-        for i in self.full_list:
-            x2 = i.split("\\")
-            x2 = x2[-1]
-            if filename in x2:
-                print("We found your file its located, at {}".format(i))
-                return i
     def list_files(self, include_subdirs=False):
         """
         Scans the specified directory and its subdirectories for files, excluding certain files.
