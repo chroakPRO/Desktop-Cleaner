@@ -1,104 +1,88 @@
-# README for PCSorter Codebase
+# README for PCSorter
 
 ## Introduction
 
-PCSorter is a Python-based utility designed to organize files in a directory using the OpenAI ChatGPT API. It automates the sorting of files into designated folders, making file management more efficient and user-friendly. This tool is particularly useful for users dealing with cluttered directories, aiming to streamline their digital workspace.
+PCSorter is a Python-based utility designed to intelligently organize files in a directory using the OpenAI ChatGPT API. This tool scans a specified directory (including subdirectories if desired), classifies files based on content and type, and reorganizes them into a more structured format. It leverages the advanced capabilities of OpenAI's GPT models to understand and categorize file contents, making file management more efficient and intuitive.
 
-### Dependencies and Prerequisites
-- Python 3.x
-- OpenAI API key
-- External libraries: `os`, `re`, `shutil`, `time`, `argparse`, `datetime`, `json`, `sys`, `openai`
-- Additional files: `extlist.py`, `data/chatbot.txt`
+Key Features:
+- File sorting using AI-driven insights.
+- Customizable directory and file type handling.
+- Backup and restore functionality for sorted files.
+- Cross-platform compatibility with detailed setup instructions.
 
-## Installation
+## Requirements
 
-1. **Clone the Repository:**
-   ```bash
-   git clone [repository-url]
-   ```
+- Python 3.6 or higher
+- `openai` Python package
+- Additional Python libraries: `os`, `re`, `shutil`, `time`, `argparse`, `datetime`, `json`, `sys`
+- An active OpenAI API key
 
-2. **Navigate to the Codebase Directory:**
-   ```bash
-   cd [codebase-directory]
-   ```
+## Installation Instructions
 
-3. **Install Required Libraries:**
-   Ensure Python 3.x is installed on your system. Install additional dependencies using pip:
-   ```bash
-   pip install openai
-   ```
+1. Ensure Python 3.6+ is installed on your system.
+2. Clone the PCSorter repository from GitHub or download the source code.
+3. Navigate to the PCSorter directory in your terminal or command prompt.
+4. Install required Python packages using the command: `pip install -r requirements.txt`.
+5. Set up an environment variable for your OpenAI API key (instructions in the next section).
 
-4. **Set Up OpenAI API Key:**
-   Export your OpenAI API key as an environment variable:
-   Linux
-   ```bash
-   export OPENAI_API_KEY='your_api_key_here'
-   ```
-   Windows
-   ```bash
-  setx OPENAI_API_KEY='your_api_key_here'
-   ```
+### Setting Up Environment Variables
 
-## Usage
+#### Windows
 
-### Basic Commands
-- **Sorting Files:**
-  ```bash
-  python main.py sort --dir [directory-path] --model [model-type]
-  ```
-  - `--dir`: Directory to sort (default: current directory)
-  - `--model`: Model type for sorting (default: GPT4)
+1. **Command Prompt:**
+   - Use `setx OPENAI_API_KEY "Your-API-Key"` to set the API key.
+2. **PowerShell:**
+   - Apply `$env:OPENAI_API_KEY = "Your-API-Key"` to set the key.
+3. **Editing System Properties:**
+   - Open System Properties -> Advanced -> Environment Variables.
+   - Add a new System variable named `OPENAI_API_KEY` with your API key as its value.
 
-- **Restoring Files:**
-  ```bash
-  python main.py restore --file [restore-file-name]
-  ```
-  - `--file`: Restore file name & location (default: `restore.txt` in current directory)
+#### macOS
 
-### Sample Input
-To sort files in the current directory using the default GPT4 model:
-```bash
-python main.py sort
-```
+1. **Using Terminal:**
+   - Add `export OPENAI_API_KEY="Your-API-Key"` to your `.bash_profile` or `.zshrc`.
+2. **Editing `.bash_profile` or `.zshrc`:**
+   - Open these files in a text editor and add the export line as above.
 
-## Code Structure
+#### Linux
 
-- **Main Components:**
-  - `PCSorter`: Main class for sorting files.
-  - `main.py`: Entry point of the application, handling command-line arguments.
+1. **Using Terminal:**
+   - Similar to macOS, use `export OPENAI_API_KEY="Your-API-Key"` in `.bashrc` or equivalent.
+2. **Editing `.bashrc` or equivalent:**
+   - Open the file in an editor and add the export command.
 
-- **Important Functions:**
-  - `list_files`: Lists files in the specified directory.
-  - `chatgpt`: Interacts with OpenAI's ChatGPT API.
-  - `sort_files`: Organizes files into directories based on ChatGPT's suggestions.
-  - `restore_files`: Restores files to their original locations.
+## Configuration
 
-- **Directory Structure:**
-  - `data/`: Contains data files like `chatbot.txt`.
-  - `extlist.py`: A module for listing file extensions.
+Before running PCSorter, ensure the `OPENAI_API_KEY` environment variable is set. Adjust the script settings in `main.py` if necessary, to change default behavior (e.g., default model, directory).
+
+## Usage Instructions
+
+1. **Running the script:**
+   - Execute `python main.py` in your terminal.
+   - Use command-line arguments to specify options like `--model`, `--dir`, `--include`, `--backup`.
+2. **Common use cases:**
+   - Sorting files in the current directory: `python main.py sort --dir ./my_directory`
+   - Using a specific GPT model: `python main.py sort --model gpt-3.5-turbo`
 
 ## Troubleshooting
 
-- **Common Issues:**
-  - Invalid API key: Ensure the OPENAI_API_KEY environment variable is correctly set.
-  - Missing dependencies: Verify all required Python libraries are installed.
+- **API Key Not Recognized:** Ensure the environment variable `OPENAI_API_KEY` is correctly set.
+- **Permission Errors:** Run the script with appropriate permissions or from a non-restricted directory.
+- **Invalid Model Specified:** Check that the model name is correct and supported.
 
-- **Solutions:**
-  - Recheck the API key and environment variable setup.
-  - Run `pip install -r requirements.txt` to install missing libraries.
+## FAQs
 
-- **Limitations:**
-  - The tool currently does not support nested directory sorting.
+- **Can PCSorter handle large directories?**
+  Yes, but performance may vary based on the number and size of files.
 
 ## Contributing
 
-Contributions to PCSorter are welcome. To contribute:
-- Report bugs and suggest improvements via GitHub issues.
-- Submit pull requests with new features or bug fixes.
-- For major changes, please open an issue first to discuss what you would like to change.
+Contributions to PCSorter are welcome. Please submit issues and pull requests through GitHub, adhering to the project's coding standards and guidelines.
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+PCSorter is released under the MIT License. See the LICENSE file for more details.
 
----
+## Acknowledgments
+
+Thanks to the contributors and to OpenAI for the API that powers this project. Special thanks to [list any special contributors or resources].
