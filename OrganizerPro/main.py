@@ -13,21 +13,17 @@ import sys
 
 class PCSorter:
     """
-    File/Folder cleaner.
-    :param x: restore file name. string
-    :return: none
+    A class to sort files using the OpenAI ChatGPT API.
     """
 
-
-    files = []
-    sub_folders = []
-    sub_files = []
-    tmp_list = []
-    dir_containing_files = []
-
-
     def __init__(self, directory, is_backup):
+        """
+        Init function.
 
+        Args: 
+            directory (str): The directory to sort.
+            is_backup (bool): Whether the directory is a backup or not.
+        """
         self.is_backup = is_backup
         self.directory = directory
         self.client = OpenAI(api_key=os.environ['OPENAI_API_KEY'])
@@ -36,11 +32,16 @@ class PCSorter:
             self.chatbot = file.read()
 
     
-    def list_files(self, include_subdirs=False):
+    def list_files(self, include_subdirs=False: bool):
         """
         Scans the specified directory and its subdirectories for files, excluding certain files.
         If include_subdirs is False, only files from the root directory are returned.
-        Returns a tuple of two lists: (all_files, all_directories).
+        
+        Args:
+            include_subdirs (bool): Whether to include files from subdirectories.
+
+        Returns:
+            List[str]: A list of files in the specified directory.
         """
         excluded_files = {'cleaner.py', 'extlist.py', 'main.py'}
         all_files = []
@@ -58,7 +59,19 @@ class PCSorter:
         return all_files, all_directories
 
 
-    def chatgpt(self, user_input, model="gpt-4-1106-preview", temperature=0, max_tokens=500):
+    def chatgpt(self, user_input: str, model="gpt-4-1106-preview": str, temperature=0: float, max_tokens=500: int):
+        """
+        Calls the OpenAI API to generate a response to the user's input.
+
+        Args:
+            user_input (str): The user's input to the chatbot.
+            model (str): The model to use for the chat completion.
+            temperature (float): The temperature of the chat completion.
+            max_tokens (int): The maximum number of tokens to generate for the chat completion.
+
+        Returns:
+            str: The response from the chatbot.
+        """
         # Prepare messages for the conversation
         formatted_conversation = [{"role": "system", "content": self.chatbot}]
         formatted_conversation.append({"role": "user", "content": user_input})
@@ -79,7 +92,16 @@ class PCSorter:
 
         return chat_response    
 
-    def clean_gpt_output(self, input_str):
+    def clean_gpt_output(self, input_str: str):
+        """
+        Cleans up the chatgpt output
+
+        Args:
+            input_str (str): The input string to clean.
+
+        Returns:
+            str: The cleaned string.
+        """
         # Find the index of the first '{' character
         start_index = input_str.find('{')
         
@@ -94,6 +116,15 @@ class PCSorter:
             return "No '{' or '}' characters found in the input string."
 
     def print_folder_structure(self, json_data):
+        """
+        Prints the folder structure in a human-readable format.
+
+        Args:
+            json_data (str): A JSON string that maps folders to files.
+
+        Returns:
+            str: A human-readable string representation of the folder structure.
+        """
         # Parse the JSON data into a Python dictionary
         data_dict = json.loads(json_data)
         output = ""
@@ -104,10 +135,23 @@ class PCSorter:
                 output += f"{indent}  - {file}\n"
         return output
 
-    def sort_files(self, json_response):
-        file_movements = []
+    def sort_files(self, json_response: str):
+        """
+        Sorts files into directories based on the provided JSON response.
+
+        Args:
+            json_response (str): A JSON string that maps folders to files.
+
+        Returns:
+            None: This function doesn't return anything but creates directories and moves files.
+        """
+        file_movements: List[str] = []
         # Create folders
-        json_data = json.loads(json_response)
+        try: 
+            json_data = json.loads(json_response)
+        except json.decoder.JSONDecodeError:
+            print("Invalid JSON response")
+            return
         for folder, files in json_data.items():
             # Create the folders
             folder_path = os.path.join(self.directory, folder)
@@ -125,11 +169,24 @@ class PCSorter:
                 original_path = i
                 new_path = os.path.join(folder_path, os.path.basename(i))
                 file_movements.append(f"{original_path}###{new_path}\n")  # Record the file movement
-        with open(self.directory, 'w') as file:
-            for movement in file_movements:
-                file.write(movement)
+        try:
+            with open(self.directory, 'w') as file:
+                for movement in file_movements:
+                    file.write(movement)
+        except OSError as error:
+            print(f"Creation of the file '{self.directory}' failed")
+            print(error)
 
     def restore_files(self, restore_file='restore.txt'):
+        """
+        Restores files to their original location.
+
+        Args:
+            restore_file (str): The file to restore files from.
+
+        Returns:
+            None: This function doesn't return anything but restores files.
+        """
         with open(restore_file, 'r') as file:
             for line in file:
                 original_path, new_path = line.strip().split('###')
@@ -194,9 +251,12 @@ def sort_files(args):
     sorter.sort_files(clean_response) 
 
 def restore_files(args):
-    sorter = PCSorter.getInstance()
-    sorter._restore()
-
+    default_directory: str = os.getcwd()
+    default_file: str = 'restore.txt'
+    file: str = args.file if args.file else default_file
+    
+    sorter = PCSorter(default_directory, False)
+    sorter.restore_file(file)
 
 def main():
     parser = argparse.ArgumentParser(description="File management utility")
@@ -216,6 +276,7 @@ def main():
 
     # Restore command
     restore_parser = subparsers.add_parser('restore')
+    restore_parser.add_argument('--file', type=str, help="Restore file name & location (default: Current dir & restore.txt)")
     restore_parser.set_defaults(func=restore_files)
 
     args = parser.parse_args()
