@@ -25,7 +25,7 @@ setup(
     },
     author='Christopher Ek',
     author_email='chr.oak@icloud.com',
-    description='OrganizerPro is a Python-based utility designed to intelligently organize files using the OpenAI ChatGPT API.',
+    description='AiSort is a Python-based utility designed to intelligently organize files using the OpenAI ChatGPT API.',
     license='MIT',
     keywords='ai sorter',
     url='https://github.com/chroakPRO/Desktop-Cleaner/tree/ai-integration',  # Your project's main homepage
