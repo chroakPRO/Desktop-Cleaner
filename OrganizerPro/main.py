@@ -32,7 +32,7 @@ class PCSorter:
             self.chatbot = file.read()
 
     
-    def list_files(self, include_subdirs=False: bool):
+    def list_files(self, include_subdirs: bool=False):
         """
         Scans the specified directory and its subdirectories for files, excluding certain files.
         If include_subdirs is False, only files from the root directory are returned.
@@ -59,7 +59,7 @@ class PCSorter:
         return all_files, all_directories
 
 
-    def chatgpt(self, user_input: str, model="gpt-4-1106-preview": str, temperature=0: float, max_tokens=500: int):
+    def chatgpt(self, user_input: str, model: str="gpt-4-1106-preview", temperature: float=0, max_tokens: float=500):
         """
         Calls the OpenAI API to generate a response to the user's input.
 
@@ -115,7 +115,7 @@ class PCSorter:
         else:
             return "No '{' or '}' characters found in the input string."
 
-    def print_folder_structure(self, json_data):
+    def print_folder_structure(self, json_data: str):
         """
         Prints the folder structure in a human-readable format.
 
@@ -271,7 +271,7 @@ def main():
     sort_parser.add_argument('--model', type=str, help='Model type for sorting, (Avail: gpt3, gpt4, custom) (default: GPT4)')
     sort_parser.add_argument('--dir', type=str, help='Directory to sort (default: None)')
     sort_parser.add_argument('--include', type=str, help='Include files in subdirectories (default: False)')
-    sort_parser.add_argument('--backup', type=str, help='Backup directory for sorted files (default: False)')
+    #sort_parser.add_argument('--backup', type=str, help='Backup directory for sorted files (default: False)')
     sort_parser.set_defaults(func=sort_files)
 
     # Restore command
