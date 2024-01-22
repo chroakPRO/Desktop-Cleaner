@@ -1,7 +1,6 @@
 import os
 import re
 import shutil
-from extlist import *
 import time
 import argparse
 import datetime
@@ -10,7 +9,7 @@ import importlib.resources as pkg_resources
 from typing import List, Tuple
 import json
 import sys
-
+from . import data  # relative import for your data package
 class PCSorter:
     """
     A class to sort files using the OpenAI ChatGPT API.
@@ -28,10 +27,10 @@ class PCSorter:
         self.directory = directory
         self.client = OpenAI(api_key=os.environ['OPENAI_API_KEY'])
         self.chatbot = ""
-        with open("./data/chatbot.txt") as file:
-            self.chatbot = file.read()
 
-    
+        with pkg_resources.open_text(data, 'chatbot.txt') as file:
+            self.chatbot = file.read()
+             
     def list_files(self, include_subdirs: bool=False):
         """
         Scans the specified directory and its subdirectories for files, excluding certain files.
@@ -168,9 +167,10 @@ class PCSorter:
             for i in files:
                 original_path = i
                 new_path = os.path.join(folder_path, os.path.basename(i))
-                file_movements.append(f"{original_path}###{new_path}\n")  # Record the file movement
+                file_movements.append(f"{os.path.join(self.directory, original_path)}###{new_path}\n")  # Record the file movement
         try:
-            with open(self.directory, 'w') as file:
+            restore_file_path = os.path.join(self.directory, 'restore.txt')
+            with open(restore_file_path, 'w') as file:
                 for movement in file_movements:
                     file.write(movement)
         except OSError as error:
@@ -188,11 +188,27 @@ class PCSorter:
             None: This function doesn't return anything but restores files.
         """
         with open(restore_file, 'r') as file:
+            folder_name = []
             for line in file:
                 original_path, new_path = line.strip().split('###')
                 shutil.move(new_path, original_path)
                 print(f"Restored {new_path} to {original_path}")
-
+                # Splitting the file path to get the directory
+                dir_path = os.path.dirname(new_path)
+                # Splitting the directory path to get the folder names
+                folder_names = dir_path.split(os.sep)
+                # The last folder name before the file
+                last_folder = folder_names[-1]
+                print("LAST_FOLDER", last_folder)
+                if last_folder not in folder_name:
+                    folder_name.append(last_folder)
+            for i in folder_name:
+                # To remove an empty folder
+                try:
+                    os.rmdir(os.path.join(os.path.dirname(dir_path),i))
+                    print(f"Empty folder '{os.path.join(os.path.dirname(dir_path),i)}' removed successfully.")
+                except OSError as e:
+                    print(f"Error: {os.path.join(os.path.dirname(dir_path),i)} : {e.strerror}")
 
 def exit_app(args):
     print('Bye')
@@ -201,8 +217,8 @@ def exit_app(args):
 def sort_files(args):
     # Define default values for various parameters
     default_model: str = 'GPT4'  # Default model to use for text classification
-    default_directory: str = os.getcwd()  # Default directory to search for files
-    default_backup: bool = False  # Default flag indicating whether to include backup files
+    default_directory: str = os.getcwd()  # Default dirctory to search for files
+    default_backup: bool = True  # Default flag indicating whether to include backup files
     default_include: bool = False  # Default flag indicating whether to include subdirectories
 
     # Assign values to parameters based on provided arguments
@@ -256,7 +272,7 @@ def restore_files(args):
     file: str = args.file if args.file else default_file
     
     sorter = PCSorter(default_directory, False)
-    sorter.restore_file(file)
+    sorter.restore_files(file)
 
 def main():
     parser = argparse.ArgumentParser(description="File management utility")
@@ -271,7 +287,7 @@ def main():
     sort_parser.add_argument('--model', type=str, help='Model type for sorting, (Avail: gpt3, gpt4, custom) (default: GPT4)')
     sort_parser.add_argument('--dir', type=str, help='Directory to sort (default: None)')
     sort_parser.add_argument('--include', type=str, help='Include files in subdirectories (default: False)')
-    #sort_parser.add_argument('--backup', type=str, help='Backup directory for sorted files (default: False)')
+    sort_parser.add_argument('--backup', type=str, help='Backup directory for sorted files (default: False)')
     sort_parser.set_defaults(func=sort_files)
 
     # Restore command
