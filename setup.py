@@ -6,7 +6,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name='aisort',
-    version='0.1.1',  # Update this with every release
+    version='0.1.2',  # Update this with every release
     packages=find_packages(),
     include_package_data=True,
     package_data={
