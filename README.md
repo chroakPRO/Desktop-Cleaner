@@ -20,9 +20,9 @@ Key Features:
 ## Installation Instructions
 
 1. Ensure Python 3.6+ is installed on your system.
-2. Install OrganizerPro via pip
+2. Install AiSort via pip
    ```
-   pip install OrganizerPro
+   pip install aisort 
    ```
 5. Set up an environment variable for your OpenAI API key (instructions in the next section).
 
@@ -59,11 +59,11 @@ Before running PCSorter, ensure the `OPENAI_API_KEY` environment variable is set
 ## Usage Instructions
 
 1. **Running the script:**
-   - Execute `organizerpro` in your terminal.
+   - Execute `AiSort` in your terminal.
    - Use command-line arguments to specify options like `--model`, `--dir`, `--include`, `--backup`.
 2. **Common use cases:**
-   - Sorting files in the current directory: `organizerpro sort --dir ./my_directory`
-   - Using a specific GPT model: `organizerpro sort --model gpt-3.5-turbo`
+   - Sorting files in the current directory: `AiSort sort --dir ./my_directory`
+   - Using a specific GPT model: `AiSort sort --model gpt-3.5-turbo`
 
 ## Troubleshooting
 
