@@ -176,40 +176,7 @@ class PCSorter:
         except OSError as error:
             print(f"Creation of the file '{self.directory}' failed")
             print(error)
-
-    def restore_files(self, restore_file='restore.txt'):
-        """
-        Restores files to their original location.
-
-        Args:
-            restore_file (str): The file to restore files from.
-
-        Returns:
-            None: This function doesn't return anything but restores files.
-        """
-        with open(restore_file, 'r') as file:
-            folder_name = []
-            for line in file:
-                original_path, new_path = line.strip().split('###')
-                shutil.move(new_path, original_path)
-                print(f"Restored {new_path} to {original_path}")
-                # Splitting the file path to get the directory
-                dir_path = os.path.dirname(new_path)
-                # Splitting the directory path to get the folder names
-                folder_names = dir_path.split(os.sep)
-                # The last folder name before the file
-                last_folder = folder_names[-1]
-                print("LAST_FOLDER", last_folder)
-                if last_folder not in folder_name:
-                    folder_name.append(last_folder)
-            for i in folder_name:
-                # To remove an empty folder
-                try:
-                    os.rmdir(os.path.join(os.path.dirname(dir_path),i))
-                    print(f"Empty folder '{os.path.join(os.path.dirname(dir_path),i)}' removed successfully.")
-                except OSError as e:
-                    print(f"Error: {os.path.join(os.path.dirname(dir_path),i)} : {e.strerror}")
-
+        
 def exit_app(args):
     print('Bye')
 
