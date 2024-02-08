@@ -1,3 +1,26 @@
+Metadata-Version: 2.1
+Name: aisort
+Version: 0.1.4
+Summary: AiSort is a Python-based utility designed to intelligently organize files using the OpenAI ChatGPT API.
+Home-page: https://github.com/chroakPRO/Desktop-Cleaner/tree/ai-integration
+Download-URL: https://github.com/chroakPRO/Desktop-Cleaner/archive/refs/heads/ai-integration.zip
+Author: Christopher Ek
+Author-email: chr.oak@icloud.com
+License: MIT
+Keywords: ai sorter
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: openai
+
 # README for PCSorter
 
 ## Introduction

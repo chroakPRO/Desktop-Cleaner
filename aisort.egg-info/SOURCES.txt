@@ -1,0 +1,12 @@
+LICENSE
+README.md
+setup.py
+aisort/__init__.py
+aisort/main.py
+aisort.egg-info/PKG-INFO
+aisort.egg-info/SOURCES.txt
+aisort.egg-info/dependency_links.txt
+aisort.egg-info/entry_points.txt
+aisort.egg-info/requires.txt
+aisort.egg-info/top_level.txt
+aisort/data/chatbot.txt
